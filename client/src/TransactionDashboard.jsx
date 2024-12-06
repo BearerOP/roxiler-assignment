@@ -95,7 +95,6 @@ function TransactionDashboard() {
     ],
   };
 
-  // Pie Chart Configuration
   const pieChartConfig = {
     color: COLORS,
   };
@@ -106,7 +105,13 @@ function TransactionDashboard() {
         <CardTitle>Transactions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex mb-4 space-x-2">
+        <div className="flex mb-4  justify-between space-x-2">
+          <Input
+            placeholder="Search transactions"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-[250px]"
+          />
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Month" />
@@ -119,12 +124,6 @@ function TransactionDashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Input
-            placeholder="Search transactions"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-[250px]"
-          />
         </div>
         {loading ? (
           <div className="text-center py-4">Loading...</div>
@@ -211,26 +210,40 @@ function TransactionDashboard() {
   );
 
   const renderBarChart = () => (
-    <Card>
+    <Card className="h-full md:col-span-2">
       <CardHeader>
         <CardTitle>Price Range Distribution</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         {loading ? (
           <div className="text-center py-4">Loading...</div>
         ) : error ? (
           <div className="text-red-500 text-center py-4">{error}</div>
         ) : (
-          <ChartContainer config={barChartConfig} className="h-[300px]">
-            <BarChart accessibilityLayer data={combinedData?.barChart || []}>
-              <CartesianGrid vertical={false} />
+          <ChartContainer
+            config={barChartConfig}
+            className="h-[400px] w-full"
+          >
+            <BarChart
+              accessibilityLayer
+              data={combinedData?.barChart || []}
+              width={800}
+              height={350}
+            >
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey="range"
                 tickLine={false}
-                axisLine={false}
+                axisLine={true}
                 tickMargin={8}
+                type="category"
+                tickFormatter={(value) => {
+                  const [min, max] = value.split("-");
+                  if (max === "above") return "901 and above";
+                  return `${min}-${max}`;
+                }}
               />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              <YAxis tickLine={false} axisLine={true} tickMargin={8} />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent indicator="item" />}
@@ -246,6 +259,7 @@ function TransactionDashboard() {
       </CardContent>
     </Card>
   );
+
 
   const renderPieChart = () => (
     <Card>
@@ -308,24 +322,18 @@ function TransactionDashboard() {
   );
 
   return (
-<div className="container mx-auto p-6">
-  <h1 className="text-3xl font-bold mb-6">Transaction Dashboard</h1>
-  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 auto-rows-fr">
-    {/* Full-width table */}
-    <div className="lg:col-span-4">{renderTransactionsTable()}</div>
-
-    {/* Bar Chart: 2x1 block */}
-    <div className="lg:col-span-2 row-span-1">{renderBarChart()}</div>
-
-    {/* Pie Chart: 1x1 block */}
-    <div className="lg:col-span-1 row-span-1">{renderPieChart()}</div>
-
-    {/* Statistics: 1x2 block */}
-    <div className="lg:col-span-1 row-span-2">{renderStatistics()}</div>
-  </div>
-</div>
-
-
+    <div className="container mx-auto p-4 lg:p-6 space-y-6">
+      <h1 className="text-2xl lg:text-3xl font-bold mb-4 lg:mb-6">Transaction Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div className="md:col-span-2 lg:col-span-3">{renderTransactionsTable()}</div>
+        <div className="md:col-span-2 lg:col-span-2">{renderBarChart()}</div>
+        
+        <div className="lg:col-span-1 flex flex-col gap-4">
+        <div className="">{renderStatistics()}</div>
+        <div className="">{renderPieChart()}</div>
+        </div>
+      </div>
+    </div>
   );
 }
 

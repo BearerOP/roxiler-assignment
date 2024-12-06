@@ -3,18 +3,18 @@ const router = express.Router();
 
 const {
   initializeDatabase,
-  getTransactions,
-  getStatistics,
-  getBarChartData,
-  getPieChartData,
-  getCombinedData,
+  handleGetTransactions,
+  handleGetStatistics,
+  handleGetBarChartData,
+  handleGetPieChartData,
+  handleGetCombinedData,
 } = require("../controllers/transactionController.js");
 
 router.get("/initialize", initializeDatabase);
-router.get("/transactions", getTransactions);
-router.get("/statistics", getStatistics);
-router.get("/bar-chart", getBarChartData);
-router.get("/pie-chart", getPieChartData);
-router.get("/combined-data", getCombinedData);
+router.get('/transactions', handleGetTransactions);
+router.get('/statistics', handleGetStatistics);
+router.get('/bar-chart', handleGetBarChartData);
+router.get('/pie-chart', handleGetPieChartData);
+router.get("/combined-data", handleGetCombinedData);
 
 module.exports = router;

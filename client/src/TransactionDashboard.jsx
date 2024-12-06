@@ -1,38 +1,39 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  Legend, 
-  PieChart, 
-  Pie, 
-  Cell 
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+} from "@/components/ui/chart"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import {
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts'
 
 // Constants
@@ -52,7 +53,7 @@ const MONTHS = [
 ]
 
 const COLORS = [
-  '#0088FE', '#00C49F', '#FFBB28', '#FF8042', 
+  '#0088FE', '#00C49F', '#FFBB28', '#FF8042',
   '#8884D8', '#84D8A4', '#D884A4', '#D8D484'
 ]
 
@@ -68,15 +69,13 @@ function TransactionDashboard() {
     setLoading(true)
     setError(null)
     try {
-      const response = await axios.get('/combined-data', {
-        params: { 
-          month: selectedMonth, 
-          page, 
-          search: searchTerm 
+      const response = await axios.get('/api/combined-data', {
+        params: {
+          month: selectedMonth,
+          page,
+          search: searchTerm
         }
       })
-      console.log('Combined data:', response);
-      
       setCombinedData(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -90,6 +89,20 @@ function TransactionDashboard() {
     fetchCombinedData()
   }, [selectedMonth, page, searchTerm])
 
+  // Bar Chart Configuration
+  const barChartConfig = {
+    color: [
+      "hsl(var(--chart-1))",
+      "hsl(var(--chart-2))",
+      "hsl(var(--chart-3))",
+    ],
+  }
+
+  // Pie Chart Configuration
+  const pieChartConfig = {
+    color: COLORS,
+  }
+
   const renderTransactionsTable = () => (
     <Card className="w-full">
       <CardHeader>
@@ -97,8 +110,8 @@ function TransactionDashboard() {
       </CardHeader>
       <CardContent>
         <div className="flex mb-4 space-x-2">
-          <Select 
-            value={selectedMonth} 
+          <Select
+            value={selectedMonth}
             onValueChange={setSelectedMonth}
           >
             <SelectTrigger className="w-[180px]">
@@ -112,8 +125,8 @@ function TransactionDashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Input 
-            placeholder="Search transactions" 
+          <Input
+            placeholder="Search transactions"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-[250px]"
@@ -136,7 +149,7 @@ function TransactionDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {combinedData?.transactions?.map(transaction => (
+                {combinedData?.transactions?.transactions?.map(transaction => (
                   <TableRow key={transaction._id}>
                     <TableCell>{transaction.title}</TableCell>
                     <TableCell>{transaction.description}</TableCell>
@@ -148,15 +161,16 @@ function TransactionDashboard() {
               </TableBody>
             </Table>
             <div className="flex justify-between mt-4">
-              <Button 
-                disabled={page === 1} 
+              <Button
+                disabled={page === 1}
                 onClick={() => setPage(p => p - 1)}
               >
                 Previous
               </Button>
-              <span>Page {page} of {combinedData?.totalPages}</span>
-              <Button 
-                disabled={page === combinedData?.totalPages} 
+
+              <span>Page {page} of {combinedData?.transactions?.totalPages}</span>
+              <Button
+                disabled={page === combinedData?.transactions?.totalPages}
                 onClick={() => setPage(p => p + 1)}
               >
                 Next
@@ -209,13 +223,34 @@ function TransactionDashboard() {
         ) : error ? (
           <div className="text-red-500 text-center py-4">{error}</div>
         ) : (
-          <BarChart width={600} height={300} data={combinedData?.barChart}>
-            <XAxis dataKey="range" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="count" fill="#8884d8" />
-          </BarChart>
+          <ChartContainer config={barChartConfig} className="h-[300px]">
+            <BarChart
+              accessibilityLayer
+              data={combinedData?.barChart || []}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="range"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="item" />}
+              />
+              <Bar
+                dataKey="count"
+                fill="var(--chart-1)"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ChartContainer>
         )}
       </CardContent>
     </Card>
@@ -232,33 +267,50 @@ function TransactionDashboard() {
         ) : error ? (
           <div className="text-red-500 text-center py-4">{error}</div>
         ) : (
-          <PieChart width={400} height={300}>
-            <Pie
-              data={combinedData?.pieChart}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="count"
-            >
-              {combinedData?.pieChart.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={COLORS[index % COLORS.length]} 
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend 
-              payload={
-                combinedData?.pieChart.map((entry, index) => ({
-                  value: `${entry.category} (${entry.count})`,
-                  color: COLORS[index % COLORS.length]
-                }))
-              }
-            />
-          </PieChart>
+          <ChartContainer config={pieChartConfig} className="h-[300px]">
+            <PieChart>
+              <Pie
+                data={combinedData?.pieChart || []}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="count"
+                nameKey="category"
+              >
+                {(combinedData?.pieChart || []).map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <ChartTooltip
+                content={<ChartTooltipContent nameKey="category" />}
+              />
+              <ChartLegend
+                content={({ payload }) => (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {payload?.map((entry, index) => (
+                      <div
+                        key={`item-${index}`}
+                        className="flex items-center gap-2"
+                      >
+                        <div
+                          className="h-2 w-2 rounded-full"
+                          style={{
+                            backgroundColor: entry.color
+                          }}
+                        />
+                        <span className="text-xs">{entry.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              />
+            </PieChart>
+          </ChartContainer>
         )}
       </CardContent>
     </Card>

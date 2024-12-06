@@ -7,7 +7,9 @@ const db = require("./db/dbConnection");
 
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors(
+  'https://roxiler-assignment-4lvn.vercel.app'
+));
 app.use(express.json());
 
 db.connectDB();

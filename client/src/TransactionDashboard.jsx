@@ -27,7 +27,6 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
 
-// Constants
 const MONTHS = [
   { value: "1", label: "January" },
   { value: "2", label: "February" },
@@ -86,7 +85,6 @@ function TransactionDashboard() {
     fetchCombinedData();
   }, [selectedMonth, page, searchTerm]);
 
-  // Bar Chart Configuration
   const barChartConfig = {
     color: [
       "hsl(var(--chart-1))",
@@ -327,10 +325,9 @@ function TransactionDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         <div className="md:col-span-2 lg:col-span-3">{renderTransactionsTable()}</div>
         <div className="md:col-span-2 lg:col-span-2">{renderBarChart()}</div>
-        
         <div className="lg:col-span-1 flex flex-col gap-4">
-        <div className="">{renderStatistics()}</div>
-        <div className="">{renderPieChart()}</div>
+          <div className="">{renderStatistics()}</div>
+          <div className="">{renderPieChart()}</div>
         </div>
       </div>
     </div>

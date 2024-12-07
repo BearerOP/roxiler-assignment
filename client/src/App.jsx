@@ -1,10 +1,13 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import TransactionDashboard from './TransactionDashboard';
 
 function App() {
   return (
-    <div className="App">
-      <TransactionDashboard />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<TransactionDashboard />} />
+      </Routes>
+    </Router>
   );
 }
 

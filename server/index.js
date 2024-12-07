@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors(
   'https://roxiler-assignment-4lvn.vercel.app',
   'https://roxiler-assignment-2-hcf2.onrender.com',
+  'https://roxiler-assignment-one.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173',
   

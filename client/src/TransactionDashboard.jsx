@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -26,6 +25,7 @@ import {
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
+import api from "../src/api";
 
 const MONTHS = [
   { value: "1", label: "January" },
@@ -65,7 +65,7 @@ function TransactionDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get("/api/combined-data", {
+      const response = await api.get("/combined-data", {
         params: {
           month: selectedMonth,
           page,
